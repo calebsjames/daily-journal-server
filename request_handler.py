@@ -1,7 +1,16 @@
 import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
-# from entries import get_all_entries
+from entries import get_all_entries
+from entries import get_single_entry
+from entries import create_entry
+from entries import delete_entry
+from entries import update_entry
+from moods import get_all_moods
+from moods import get_single_mood
+from moods import create_mood
+from moods import delete_mood
+from moods import update_mood
 
 
 # Here's a class. It inherits from another class.
@@ -55,23 +64,21 @@ class HandleRequests(BaseHTTPRequestHandler):
         (resource, id) = self.parse_url(self.path)
 
         # If URL resource = entries
-        if resource == "entry":
+        if resource == "entries":
             if id is not None:
                 response = f"{get_single_entry(id)}"
 
             else:
                 response = f"{get_all_entries()}"
 
-        # If URL resource = locations
-        # elif resource == "locations":
-        #     if id is not None:
-        #         response = f"{get_single_location(id)}"
+        # If URL resource = moods
+        elif resource == "moods":
+            if id is not None:
+                response = f"{get_single_mood(id)}"
 
-        #     else:
-        #         response = f"{get_all_locations()}"
+            else:
+                response = f"{get_all_moods()}"
 
-
-       
 
         #whatever is passed to this gets encoded and passed to the client
         self.wfile.write(response.encode())
@@ -91,35 +98,21 @@ class HandleRequests(BaseHTTPRequestHandler):
 
         # Initialize new entry
         new_entry = None
+        new_mood = None
 
 
         # Add a new entry to the list. Don't worry about
         # the orange squiggle, you'll define the create_entry
         # function next.
-        if resource == "entry":
+        if resource == "entries":
             new_entry = create_entry(post_body)
-
         # Encode the new entry and send in response
             self.wfile.write(f"{new_entry}".encode())
 
-
-        # if resource == "customers":
-        #     new_customer = create_customer(post_body)
-        # # Encode the new customer and send in response
-        #     self.wfile.write(f"{new_customer}".encode())
-
-
-        # if resource == "employees":
-        #     new_employee = create_employee(post_body)
-        
-        # # Encode the new employee and send in response
-        #     self.wfile.write(f"{new_employee}".encode())
-
-
-        # if resource == "locations":
-        #     new_location = create_location(post_body)
-        # # Encode the new location and send in response
-        #     self.wfile.write(f"{new_location}".encode())
+        if resource == "moods":
+            new_mood = create_mood(post_body)
+        # Encode the new mood and send in response
+            self.wfile.write(f"{new_mood}".encode())
 
 
 
@@ -129,49 +122,40 @@ class HandleRequests(BaseHTTPRequestHandler):
         self.do_POST()
 
     
-    # def do_DELETE(self):
-    #     # Set a 204 response code
-    #     self._set_headers(204)
+    def do_DELETE(self):
+        # Set a 204 response code
+        self._set_headers(204)
 
-    #     # Parse the URL
-    #     (resource, id) = self.parse_url(self.path)
+        # Parse the URL
+        (resource, id) = self.parse_url(self.path)
 
-    #     # Delete a single entry from the list
-    #     if resource == "entries":
-    #         delete_entry(id)
-    #     if resource == "customers":
-    #         delete_customer(id)
-    #     if resource == "employees":
-    #         delete_employee(id)
-    #     if resource == "locations":
-    #         delete_location(id)
+        # Delete a single entry from the list
+        if resource == "entries":
+            delete_entry(id)
+        if resource == "moods":
+            delete_mood(id)
 
-    #     # Encode the new entry and send in response
-    #     self.wfile.write("".encode())
+        # Encode the new entry and send in response
+        self.wfile.write("".encode())
 
-    # def do_PUT(self):
-    #     self._set_headers(204)
-    #     content_len = int(self.headers.get('content-length', 0))
-    #     post_body = self.rfile.read(content_len)
-    #     post_body = json.loads(post_body)
+    def do_PUT(self):
+        self._set_headers(204)
+        content_len = int(self.headers.get('content-length', 0))
+        post_body = self.rfile.read(content_len)
+        post_body = json.loads(post_body)
 
-    #     # Parse the URL
-    #     (resource, id) = self.parse_url(self.path)
+        # Parse the URL
+        (resource, id) = self.parse_url(self.path)
 
-    #     # Delete a single entry from the list
-    #     if resource == "entries":
-    #         update_entry(id, post_body)
-    #     # Encode the new entry and send in response
+        # Delete a single entry from the list
+        if resource == "entries":
+            update_entry(id, post_body)
+        
+        elif resource == "moods":
+            update_mood(id, post_body)
             
-    #     elif resource == "customers":
-    #         update_customer(id, post_body)
-        
-    #     elif resource == "employees":
-    #         update_employee(id, post_body)
-        
-    #     elif resource == "locations":
-    #         update_location(id, post_body)
-    #     self.wfile.write("".encode())
+        # Encode the new entry and send in response
+        self.wfile.write("".encode())
 
 
 
