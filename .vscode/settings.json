@@ -5,6 +5,12 @@
             "driver": "SQLite",
             "name": "daily-journal",
             "database": "dailyjournal.db"
+        },
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "database": "${workspaceFolder:daily-journal-server}/dailyjournal.db",
+            "name": "daily-journal-db"
         }
     ]
 }
