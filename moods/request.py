@@ -13,9 +13,9 @@ def get_all_moods():
         # Write the SQL query to get the information you want
         db_cursor.execute("""
         SELECT
-            a.id,
-            a.mood
-        FROM moods a
+            m.id,
+            m.mood
+        FROM moods m
         """)
 
         # Initialize an empty list to hold all mood representations

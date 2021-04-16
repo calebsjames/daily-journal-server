@@ -30,7 +30,7 @@ class HandleRequests(BaseHTTPRequestHandler):
             pair = param.split("=")  
             key = pair[0]  
             value = pair[1]  
-            
+
             return ( resource, key, value )
 
         
@@ -81,15 +81,15 @@ class HandleRequests(BaseHTTPRequestHandler):
 
             if resource == "entries":
                 if id is not None:
-                    response = f"{get_single_animal(id)}"
+                    response = f"{get_single_entry(id)}"
                 else:
                     response = f"{get_all_entries()}"
 
-            elif resource == "customers":
+            elif resource == "moods":
                 if id is not None:
-                    response = f"{get_single_customer(id)}"
+                    response = f"{get_single_mood(id)}"
                 else:
-                    response = f"{get_all_customers()}"
+                    response = f"{get_all_moods()}"
            
          
 
