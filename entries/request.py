@@ -15,12 +15,12 @@ def get_all_entries():
         # Write the SQL query to get the information you want
         db_cursor.execute("""
         SELECT
-            a.id,
-            a.date,
-            a.text,
-            a.concept,
-            a.moodId
-        FROM entries a
+            e.id,
+            e.date,
+            e.text,
+            e.concept,
+            e.moodId
+        FROM entries e
         """)
 
         # Initialize an empty list to hold all entry representations
@@ -53,13 +53,13 @@ def get_single_entry(id):
         # into the SQL statement.
         db_cursor.execute("""
         SELECT
-            a.id,
-            a.date,
-            a.text,
-            a.concept,
-            a.moodId
-        FROM entries a
-        WHERE a.id = ?
+            e.id,
+            e.date,
+            e.text,
+            e.concept,
+            e.moodId
+        FROM entries e
+        WHERE e.id = ?
         """, ( id, ))
 
         # Load the single result into memory
@@ -89,19 +89,13 @@ def create_entry(entry):
 
 
 def delete_entry(id):
-    # Initial -1 value for entry index, in case one isn't found
-    entry_index = -1
+    with sqlite3.connect("./dailyjournal.db") as conn:
+        db_cursor = conn.cursor()
 
-    # Iterate the ENTRIES list, but use enumerate() so that you
-    # can access the index value of each item
-    for index, entry in enumerate(ENTRIES):
-        if entry["id"] == id:
-            # Found the entry. Store the current index.
-            entry_index = index
-
-    # If the entry was found, use pop(int) to remove it from list
-    if entry_index >= 0:
-        ENTRIES.pop(entry_index)
+        db_cursor.execute("""
+        DELETE FROM entries
+        WHERE id = ?
+        """, (id, ))
 
 
 

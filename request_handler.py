@@ -19,25 +19,34 @@ from moods import update_mood
 # common purpose is to respond to HTTP requests from a client.
 class HandleRequests(BaseHTTPRequestHandler):
     def parse_url(self, path):
-        # Just like splitting a string in JavaScript. If the
-        # path is "/entries/1", the resulting list will
-        # have "" at index 0, "entries" at index 1, and "1"
-        # at index 2.
         path_params = path.split("/")
         resource = path_params[1]
-        id = None
 
-        # Try to get the item at index 2
-        try:
-            # Convert the string "1" to the integer 1
-            # This is the new parseInt()
-            id = int(path_params[2])
-        except IndexError:
-            pass  # No route parameter exists: /entries
-        except ValueError:
-            pass  # Request had trailing slash: /entries/
+        # Check if there is a query string parameter
+        if "?" in resource:
 
-        return (resource, id)  # This is a tuple
+            param = resource.split("?")[1]  
+            resource = resource.split("?")[0]  
+            pair = param.split("=")  
+            key = pair[0]  
+            value = pair[1]  
+            
+            return ( resource, key, value )
+
+        
+
+        # No query string parameter
+        else:
+            id = None
+
+            try:
+                id = int(path_params[2])
+            except IndexError:
+                pass  # No route parameter exists: /animals
+            except ValueError:
+                pass  # Request had trailing slash: /animals/
+
+            return (resource, id)
 
     # Here's a class function
     def _set_headers(self, status):
@@ -58,29 +67,45 @@ class HandleRequests(BaseHTTPRequestHandler):
     # It handles any GET request.
     def do_GET(self):
         self._set_headers(200)
-        response = {}  # Default response
 
-        # Parse the URL and capture the tuple that is returned
-        (resource, id) = self.parse_url(self.path)
+        response = {}
 
-        # If URL resource = entries
-        if resource == "entries":
-            if id is not None:
-                response = f"{get_single_entry(id)}"
+        # Parse URL and store entire tuple in a variable
+        parsed = self.parse_url(self.path)
 
-            else:
-                response = f"{get_all_entries()}"
+        # Response from parse_url() is a tuple with 2
+        # items in it, which means the request was for
+        # `/entries` or `/entries/2`
+        if len(parsed) == 2:
+            ( resource, id ) = parsed
 
-        # If URL resource = moods
-        elif resource == "moods":
-            if id is not None:
-                response = f"{get_single_mood(id)}"
+            if resource == "entries":
+                if id is not None:
+                    response = f"{get_single_animal(id)}"
+                else:
+                    response = f"{get_all_entries()}"
 
-            else:
-                response = f"{get_all_moods()}"
+            elif resource == "customers":
+                if id is not None:
+                    response = f"{get_single_customer(id)}"
+                else:
+                    response = f"{get_all_customers()}"
+           
+         
+
+        # Response from parse_url() is a tuple with 3
+        # items in it, which means the request was for
+        # `/resource?parameter=value`
+        elif len(parsed) == 3:
+            ( resource, key, value ) = parsed
+
+            # Is the resource `entries` and was there a
+            # query parameter that specified the mood ID
+            # as a filtering value?
+            if key == "mood" and resource == "entries":
+                response = f"{get_mood_by_entry(value)}"
 
 
-        #whatever is passed to this gets encoded and passed to the client
         self.wfile.write(response.encode())
 
     # Here's a method on the class that overrides the parent's method.
