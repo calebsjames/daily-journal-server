@@ -71,21 +71,31 @@ def get_single_entry(id):
 
         return json.dumps(entry.__dict__)
 
-def create_entry(entry):
-    # Get the id value of the last entry in the list
-    max_id = ENTRIES[-1]["id"]
+def create_entry(new_entry):
+    with sqlite3.connect("./dailyjournal.db") as conn:
+        db_cursor = conn.cursor()
 
-    # Add 1 to whatever that number is
-    new_id = max_id + 1
+        db_cursor.execute("""
+        INSERT INTO entries
+            ( date, concept, text, moodId )
+        VALUES
+            ( ?, ?, ?, ? );
+        """, (new_entry['date'],
+              new_entry['concept'], new_entry['text'],
+              new_entry['moodId'], ))
 
-    # Add an `id` property to the entry dictionary
-    entry["id"] = new_id
+        # The `lastrowid` property on the cursor will return
+        # the primary key of the last thing that got added to
+        # the database.
+        id = db_cursor.lastrowid
 
-    # Add the entry dictionary to the list
-    ENTRIES.append(entry)
+        # Add the `id` property to the entry dictionary that
+        # was sent by the client so that the client sees the
+        # primary key in the response.
+        new_entry['id'] = id
 
-    # Return the dictionary with `id` property added
-    return entry
+
+    return json.dumps(new_entry)
 
 
 def delete_entry(id):
